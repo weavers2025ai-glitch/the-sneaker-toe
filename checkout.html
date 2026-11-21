@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkout — MONARQUE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-root="">
+<div id="siteHeader"></div>
+
+<div class="pagehero"><div class="wrap"><h1>Check<em>out</em></h1><p>Almost there. Fill your details, pick how you want to pay, and we handle the rest.</p></div></div>
+
+<section style="padding-top:44px">
+  <div class="wrap">
+    <div id="coMain" class="co">
+      <div style="display:flex;flex-direction:column;gap:22px">
+        <div class="panel">
+          <h3>1 — Your details</h3>
+          <div class="fgrid">
+            <div class="field"><label>Full name *</label><input id="fName" placeholder="e.g. Ahmed Khan"></div>
+            <div class="field"><label>Phone / WhatsApp *</label><input id="fPhone" placeholder="03xx xxxxxxx"></div>
+            <div class="field full"><label>Complete address *</label><textarea id="fAddr" rows="2" placeholder="House, street, area"></textarea></div>
+            <div class="field"><label>City *</label><input id="fCity" placeholder="e.g. Peshawar"></div>
+            <div class="field"><label>Email (optional)</label><input id="fEmail" placeholder="you@email.com"></div>
+            <div class="field full"><label>Order notes</label><input id="fNotes" placeholder="Anything we should know? (optional)"></div>
+          </div>
+        </div>
+        <div class="panel">
+          <h3>2 — Payment method</h3>
+          <label class="payopt sel"><input type="radio" name="pay" value="Cash on Delivery" checked><div><b>💵 Cash on Delivery</b><span>Pay in cash when your shoes arrive at your door.</span></div></label>
+          <label class="payopt"><input type="radio" name="pay" value="Easypaisa"><div><b>📱 Easypaisa</b><span>Send to our Easypaisa account, then enter your transaction ID below.</span></div></label>
+          <div class="payfields" id="pf-Easypaisa"><div class="field"><label>Your Easypaisa Transaction ID</label><input id="tid-Easypaisa" placeholder="e.g. 12345678901"></div></div>
+          <label class="payopt"><input type="radio" name="pay" value="JazzCash"><div><b>📱 JazzCash</b><span>Send to our JazzCash account, then enter your transaction ID below.</span></div></label>
+          <div class="payfields" id="pf-JazzCash"><div class="field"><label>Your JazzCash Transaction ID</label><input id="tid-JazzCash" placeholder="e.g. 12345678901"></div></div>
+          <label class="payopt"><input type="radio" name="pay" value="Debit / Credit Card"><div><b>💳 Debit / Credit Card</b><span>Visa and Mastercard accepted. Card payment is confirmed by our team on call before dispatch.</span></div></label>
+          <div class="payfields" id="pf-Card"><div class="fgrid">
+            <div class="field full"><label>Card number</label><input id="cardNum" placeholder="4242 4242 4242 4242" maxlength="19"></div>
+            <div class="field"><label>Expiry</label><input id="cardExp" placeholder="MM / YY" maxlength="7"></div>
+            <div class="field"><label>CVC</label><input id="cardCvc" placeholder="123" maxlength="4"></div>
+          </div></div>
+          <label class="payopt"><input type="radio" name="pay" value="Bank Transfer"><div><b>🏦 Bank Transfer</b><span>We WhatsApp you the account details right after you place the order.</span></div></label>
+        </div>
+      </div>
+      <div class="panel" style="position:sticky;top:92px">
+        <h3>Order summary</h3>
+        <div id="sumItems"></div>
+        <div class="sumrow"><span>Subtotal</span><span id="sumSub">Rs. 0</span></div>
+        <div class="sumrow"><span>Delivery</span><span id="sumShip">—</span></div>
+        <div class="sumrow total"><span>Total</span><span id="sumTotal">Rs. 0</span></div>
+        <button class="btn acc" style="width:100%;justify-content:center;margin-top:16px" onclick="placeOrder()">Place Order →</button>
+        <p id="coErr" style="color:var(--sale);font-size:13px;margin-top:10px;display:none"></p>
+        <p style="font-size:12px;color:var(--muted);margin-top:12px">🔒 Your details stay private. Orders are confirmed on WhatsApp before dispatch.</p>
+      </div>
+    </div>
+    <div id="coDone" style="display:none"></div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+<script src="data/products.js"></script>
+<script src="assets/store.js"></script>
+<script>
+function shipCost(sub){ const s = getSettings(); return sub >= s.freeShipOver || sub === 0 ? 0 : s.shipFlat; }
+function renderSummary(){
+  const cat = getCatalog(); const items = getCart();
+  document.getElementById('sumItems').innerHTML = items.length ? items.map(i => { const p = cat.find(x => x.id === i.id); if (!p) return '';
+    return `<div class="sumitem"><img src="${esc(p.img)}"><div><b>${esc(p.name)}</b><span>EU ${esc(i.size)} × ${i.qty}</span></div><b>${rs(p.price * i.qty)}</b></div>`; }).join('')
+    : '<p style="color:var(--muted)">Your bag is empty. <a href="shop.html" style="text-decoration:underline">Go shopping →</a></p>';
+  const sub = cartTotal(); const ship = shipCost(sub);
+  document.getElementById('sumSub').textContent = rs(sub);
+  document.getElementById('sumShip').textContent = sub === 0 ? '—' : (ship === 0 ? 'FREE' : rs(ship));
+  document.getElementById('sumTotal').textContent = rs(sub + ship);
+}
+document.querySelectorAll('input[name=pay]').forEach(r => r.addEventListener('change', () => {
+  document.querySelectorAll('.payopt').forEach(o => o.classList.remove('sel'));
+  r.closest('.payopt').classList.add('sel');
+  document.querySelectorAll('.payfields').forEach(f => f.classList.remove('on'));
+  const map = { 'Easypaisa': 'pf-Easypaisa', 'JazzCash': 'pf-JazzCash', 'Debit / Credit Card': 'pf-Card' };
+  if (map[r.value]) document.getElementById(map[r.value]).classList.add('on');
+}));
+function err(msg){ const e = document.getElementById('coErr'); e.textContent = msg; e.style.display = 'block'; }
+function placeOrder(){
+  const items = getCart(); if (!items.length) return err('Your bag is empty — add a pair first.');
+  const name = document.getElementById('fName').value.trim();
+  const phone = document.getElementById('fPhone').value.trim();
+  const addr = document.getElementById('fAddr').value.trim();
+  const city = document.getElementById('fCity').value.trim();
+  if (!name || !phone || !addr || !city) return err('Please fill name, phone, address and city.');
+  const pay = document.querySelector('input[name=pay]:checked').value;
+  let payDetail = '';
+  if (pay === 'Easypaisa' || pay === 'JazzCash'){ payDetail = document.getElementById('tid-' + pay).value.trim(); if (!payDetail) return err('Please enter your ' + pay + ' transaction ID, or choose Cash on Delivery.'); }
+  if (pay === 'Debit / Credit Card'){ const n = document.getElementById('cardNum').value.replace(/\s/g, ''); if (n.length < 15) return err('Please enter a valid card number, or choose another payment method.'); payDetail = 'Card •••• ' + n.slice(-4); }
+  const cat = getCatalog(); const sub = cartTotal(); const ship = shipCost(sub);
+  const order = {
+    id: 'TST-' + Date.now().toString().slice(-6), date: new Date().toISOString(),
+    items: items.map(i => { const p = cat.find(x => x.id === i.id); return { name: p ? p.name : 'Item', size: i.size, qty: i.qty, price: p ? p.price : 0 }; }),
+    subtotal: sub, shipping: ship, total: sub + ship,
+    customer: { name, phone, address: addr, city, email: document.getElementById('fEmail').value.trim(), notes: document.getElementById('fNotes').value.trim() },
+    payment: pay, payDetail, status: 'New'
+  };
+  const orders = JSON.parse(localStorage.getItem('tst_orders') || '[]'); orders.unshift(order);
+  localStorage.setItem('tst_orders', JSON.stringify(orders));
+  localStorage.setItem('tst_cart', '[]');
+  const lines = order.items.map(i => `• ${i.name} (EU ${i.size}) × ${i.qty} — ${rs(i.price * i.qty)}`).join('\n');
+  const waText = encodeURIComponent(`Assalam o Alaikum! New order ${order.id} at MONARQUE:\n${lines}\nTotal: ${rs(order.total)} (${pay})\nName: ${name}\nCity: ${city}\nPhone: ${phone}`);
+  document.getElementById('coMain').style.display = 'none';
+  const d = document.getElementById('coDone'); d.style.display = 'block';
+  d.innerHTML = `<div class="success"><div class="tick">✓</div>
+    <h3 style="font-size:28px;font-weight:900;text-transform:uppercase">Order placed!</h3>
+    <p style="color:var(--muted);margin:12px 0 4px">Order number</p><p style="font-family:var(--disp);font-weight:800;font-size:22px">${order.id}</p>
+    <p style="color:var(--ink2);line-height:1.7;margin:14px 0">Thank you, ${esc(name.split(' ')[0])}. Our team will confirm your order on WhatsApp shortly. Total to pay: <b>${rs(order.total)}</b> via ${esc(pay)}.</p>
+    <a class="btn" style="background:#22b358;color:#fff" href="https://wa.me/${TST.wa}?text=${waText}" target="_blank">Confirm on WhatsApp</a>
+    <a class="btn dark" href="shop.html" style="margin-left:8px">Keep Shopping</a></div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+window.onPageReady = renderSummary;
+</script>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shop — MONARQUE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-root="">
+<div id="siteHeader"></div>
+
+<div class="pagehero"><div class="wrap"><h1 id="shopTitle">All <em>shoes</em></h1><p id="shopSub">Every style in the store, live from Peshawar. Filter by category, brand or size.</p></div></div>
+
+<section style="padding-top:44px">
+  <div class="wrap shop">
+    <aside class="filters">
+      <h4>Category</h4><div id="fCats"></div>
+      <h4>Brand</h4><div id="fBrands"></div>
+      <h4>Size (EU)</h4><div id="fSizes"></div>
+      <h4>Availability</h4>
+      <label><input type="checkbox" id="fStock"> In stock only</label>
+      <label><input type="checkbox" id="fSale"> On sale only</label>
+      <button class="clear" onclick="clearFilters()">Clear all filters</button>
+    </aside>
+    <div>
+      <div class="toolbar">
+        <div class="search">⌕<input id="q" type="text" placeholder="Search shoes, brands, models…"></div>
+        <select id="sort">
+          <option value="feat">Sort: Featured</option>
+          <option value="new">Newest first</option>
+          <option value="plow">Price: Low to High</option>
+          <option value="phigh">Price: High to Low</option>
+          <option value="off">Biggest discount</option>
+        </select>
+      </div>
+      <p class="count-note" id="countNote" style="margin-bottom:16px"></p>
+      <div class="grid" id="grid" style="grid-template-columns:repeat(3,1fr)"></div>
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+<script src="data/products.js"></script>
+<script src="assets/store.js"></script>
+<script>
+const params = new URLSearchParams(location.search);
+const state = { cats: new Set(), brands: new Set(), sizes: new Set(), stock: false, sale: params.get('sale') === '1', q: '', sort: 'feat' };
+if (params.get('cat')) state.cats.add(params.get('cat'));
+if (params.get('brand')) state.brands.add(params.get('brand'));
+function buildFilters(){
+  const cat = getCatalog();
+  const cats = [...new Set(cat.map(p => p.category))].sort();
+  const brands = [...new Set(cat.map(p => p.brand))].sort();
+  const sizes = [...new Set(cat.flatMap(p => p.sizes))].sort((a, b) => a - b);
+  document.getElementById('fCats').innerHTML = cats.map(c => `<label><input type="checkbox" data-f="cats" value="${esc(c)}" ${state.cats.has(c) ? 'checked' : ''}> ${esc(c)} <span style="color:var(--muted)">(${cat.filter(p => p.category === c).length})</span></label>`).join('');
+  document.getElementById('fBrands').innerHTML = brands.map(b => `<label><input type="checkbox" data-f="brands" value="${esc(b)}" ${state.brands.has(b) ? 'checked' : ''}> ${esc(b)}</label>`).join('');
+  document.getElementById('fSizes').innerHTML = sizes.map(s => `<label style="display:inline-flex;width:48%"><input type="checkbox" data-f="sizes" value="${s}"> EU ${s}</label>`).join('');
+  document.querySelectorAll('.filters input[type=checkbox][data-f]').forEach(cb => cb.addEventListener('change', () => {
+    const set = state[cb.dataset.f]; cb.checked ? set.add(cb.value) : set.delete(cb.value); apply();
+  }));
+  document.getElementById('fStock').addEventListener('change', e => { state.stock = e.target.checked; apply(); });
+  const saleCb = document.getElementById('fSale'); saleCb.checked = state.sale;
+  saleCb.addEventListener('change', e => { state.sale = e.target.checked; apply(); });
+}
+function apply(){
+  let list = getCatalog();
+  if (state.cats.size) list = list.filter(p => state.cats.has(p.category));
+  if (state.brands.size) list = list.filter(p => state.brands.has(p.brand));
+  if (state.sizes.size) list = list.filter(p => p.sizes.some(s => state.sizes.has(String(s))));
+  if (state.stock) list = list.filter(p => p.available);
+  if (state.sale) list = list.filter(p => offPct(p) > 0);
+  if (state.q) { const q = state.q.toLowerCase(); list = list.filter(p => (p.name + ' ' + p.brand + ' ' + p.category).toLowerCase().includes(q)); }
+  if (state.sort === 'plow') list.sort((a, b) => a.price - b.price);
+  if (state.sort === 'phigh') list.sort((a, b) => b.price - a.price);
+  if (state.sort === 'off') list.sort((a, b) => offPct(b) - offPct(a));
+  if (state.sort === 'new') list.sort((a, b) => b.id - a.id);
+  if (state.sort === 'feat') list.sort((a, b) => (b.available - a.available) || offPct(b) - offPct(a));
+  document.getElementById('countNote').textContent = 'Showing ' + list.length + ' of ' + getCatalog().length + ' products';
+  document.getElementById('grid').innerHTML = list.length ? list.map(cardHTML).join('') : '<div class="empty"><h3 style="font-size:22px;margin-bottom:8px">No shoes match those filters</h3><p>Try removing a filter or two.</p></div>';
+  const t = document.getElementById('shopTitle');
+  if (state.cats.size === 1) t.innerHTML = esc([...state.cats][0]).replace(/(\w+)$/, '<em>$1</em>');
+  else if (state.sale) t.innerHTML = 'On <em>sale</em>';
+}
+function clearFilters(){ location.href = 'shop.html'; }
+window.onPageReady = function(){
+  buildFilters(); apply();
+  document.getElementById('q').addEventListener('input', e => { state.q = e.target.value; apply(); });
+  document.getElementById('sort').addEventListener('change', e => { state.sort = e.target.value; apply(); });
+};
+</script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MONARQUE — Premium Shoes for the Luxury Lifestyle | Original Sneakers in Pakistan</title>
+<meta name="description" content="100% original sneakers, runners and football boots. Nike, Adidas, ASICS, On Running and more — delivered across Pakistan.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body data-root="">
+<div id="siteHeader"></div>
+
+<section class="hero" style="padding:0">
+  <div class="hero-glow"></div>
+  <div class="wrap">
+    <div>
+      <span class="kicker"><i></i><span id="heroKicker"></span></span>
+      <h1 id="heroTitle"></h1>
+      <p id="heroText"></p>
+      <div class="cta">
+        <a class="btn acc" href="shop.html">Shop All Shoes →</a>
+        <a class="btn ghost" href="shop.html?sale=1">Today's Sale</a>
+      </div>
+      <div class="stats">
+        <div><b id="statCount">172+</b><span>Styles live</span></div>
+        <div><b>100%</b><span>Original stock</span></div>
+        <div><b>EU 40–45</b><span>Sizes in store</span></div>
+      </div>
+    </div>
+    <div class="hero-media">
+      <div class="frame"><img id="heroImg" src="" alt="Featured sneakers"></div>
+      <div class="tag"><span id="heroTagTitle"></span><small id="heroTagSub"></small></div>
+    </div>
+  </div>
+</section>
+
+<div class="marquee"><div class="mtrack" id="mtrack"></div></div>
+
+<section>
+  <div class="wrap">
+    <div class="shead rv"><div><h2>Shop by <em>category</em></h2><p>From race-day runners to boardroom loafers — every pair original, every price honest.</p></div><a class="link-arrow" href="shop.html">View all →</a></div>
+    <div class="cats rv" id="catTiles"></div>
+  </div>
+</section>
+
+<section style="padding-top:10px">
+  <div class="wrap">
+    <div class="shead rv"><div><h2>Best <em>sellers</em></h2><p>The pairs Pakistan is wearing right now.</p></div><a class="link-arrow" href="shop.html">Shop all →</a></div>
+    <div class="slider rv"><div class="strack" id="bestTrack"></div>
+      <button class="sbtn prev" onclick="slideBy('bestTrack',-1)">‹</button><button class="sbtn next" onclick="slideBy('bestTrack',1)">›</button></div>
+  </div>
+</section>
+
+<section style="background:#fff;border-block:1px solid var(--line)">
+  <div class="wrap">
+    <div class="shead rv"><div><h2>Biggest <em>price drops</em></h2><p>Up to 40% off on selected styles. When they are gone, they are gone.</p></div><a class="link-arrow" href="shop.html?sale=1">All sale items →</a></div>
+    <div class="grid rv" id="saleGrid"></div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="shead rv" style="justify-content:center;text-align:center"><div><h2>Brands we <em>stock</em></h2></div></div>
+    <div class="brands rv" id="brandStrip"></div>
+    <div class="perks rv" style="margin-top:44px">
+      <div class="perk"><div class="ic">✅</div><b>100% Original</b><p>Every pair is imported original stock. No copies, no first copies — ever.</p></div>
+      <div class="perk"><div class="ic">🚚</div><b>Fast Nationwide Delivery</b><p>Ships from Peshawar within 24 hours. Free delivery on orders over Rs. 5,000.</p></div>
+      <div class="perk"><div class="ic">💵</div><b>Pay Your Way</b><p>Cash on Delivery, Easypaisa, JazzCash, bank transfer or card at checkout.</p></div>
+      <div class="perk"><div class="ic">🔁</div><b>7-Day Easy Exchange</b><p>Wrong size? Exchange any unused pair within 7 days, no questions asked.</p></div>
+    </div>
+    <div class="strip rv" style="margin-top:44px">
+      <div><h3 id="stripTitle"></h3><p id="stripText"></p>
+      <a class="btn acc" style="margin-top:20px" href="https://wa.me/923339527670" target="_blank">Chat on WhatsApp</a></div>
+      <img id="stripImg" src="" alt="Sneaker fitting help">
+    </div>
+  </div>
+</section>
+
+<div id="siteFooter"></div>
+<script src="data/products.js"></script>
+<script src="assets/store.js"></script>
+<script>
+function slideBy(id, d){ const t = document.getElementById(id); t.scrollBy({ left: d * 300, behavior: 'smooth' }); }
+window.onPageReady = function(){
+  const s = getSettings(); const cat = getCatalog();
+  document.getElementById('heroKicker').textContent = s.heroKicker;
+  document.getElementById('heroTitle').innerHTML = s.heroTitle;
+  document.getElementById('heroText').textContent = s.heroText;
+  document.getElementById('heroTagTitle').textContent = s.heroTagTitle;
+  document.getElementById('heroTagSub').textContent = s.heroTagSub;
+  document.getElementById('stripTitle').innerHTML = s.stripTitle;
+  document.getElementById('stripText').textContent = s.stripText;
+  document.getElementById('statCount').textContent = cat.length + '+';
+  const fallbackHero = (cat.find(p => p.slug.includes('evo-sl-neon')) || cat.find(p => p.available) || cat[0]).img;
+  document.getElementById('heroImg').src = s.heroImg || fallbackHero;
+  const stripP = cat.find(p => p.category === 'Runners' && p.available) || cat[0];
+  document.getElementById('stripImg').src = stripP.img;
+  const words = ['100% Original','Free Delivery Over Rs. 5,000','Cash on Delivery','Nike • Adidas • ASICS • On Running','EU 40–45','7-Day Exchange'];
+  document.getElementById('mtrack').innerHTML = (words.concat(words).map(w => `<span>${w} ✦</span>`).join(''));
+  const cats = ['Sneakers','Runners','Football Shoes','Formal Loafers','Comfort Shoes','Slippers & Sandals'];
+  document.getElementById('catTiles').innerHTML = cats.map(c => {
+    const items = cat.filter(p => p.category === c); if (!items.length) return '';
+    const img = (items.find(p => p.available) || items[0]).img;
+    return `<a class="cat" href="shop.html?cat=${encodeURIComponent(c)}"><img loading="lazy" src="${img}" alt="${c}"><div class="ct"><b>${c}</b><span>${items.length} styles</span></div><span class="arr">→</span></a>`;
+  }).join('');
+  const best = cat.filter(p => p.available).sort((a, b) => offPct(b) - offPct(a) || b.price - a.price).slice(0, 10);
+  document.getElementById('bestTrack').innerHTML = best.map(cardHTML).join('');
+  const sale = cat.filter(p => p.available && offPct(p) > 0).sort((a, b) => offPct(b) - offPct(a)).slice(0, 8);
+  document.getElementById('saleGrid').innerHTML = sale.map(cardHTML).join('');
+  const brands = [...new Set(cat.map(p => p.brand))].filter(b => b !== 'Other').sort();
+  document.getElementById('brandStrip').innerHTML = brands.map(b => `<span>${b}</span>`).join('');
+};
+</script>
+</body>
+</html>
