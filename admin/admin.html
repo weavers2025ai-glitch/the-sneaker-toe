@@ -81,7 +81,7 @@ td img{width:58px;height:50px;object-fit:cover;border-radius:9px}
     <input type="password" id="pw" placeholder="Admin password" onkeydown="if(event.key==='Enter')doLogin()">
     <div class="err" id="pwErr"></div>
     <button class="btn acc" style="width:100%" onclick="doLogin()">Sign In →</button>
-    <p style="margin-top:16px;font-size:12px">Default password: <b style="color:#fff">toe-admin-2026</b><br>Change it any time in Settings.</p>
+    <p style="margin-top:16px;font-size:12px">Default password: <b style="color:#fff">admin1234</b><br>Change it any time in Settings.</p>
   </div>
 </div>
 
@@ -208,7 +208,7 @@ function catalog(){
 }
 function toast(msg){ const t = $('toast'); t.textContent = msg || 'Saved ✓'; t.classList.add('on'); setTimeout(() => t.classList.remove('on'), 2200); }
 /* auth */
-function pw(){ return localStorage.getItem('tst_admin_pw') || 'toe-admin-2026'; }
+function pw(){ return localStorage.getItem('tst_admin_pw') || 'admin1234'; }
 function doLogin(){ if ($('pw').value === pw()){ sessionStorage.setItem('tst_admin', '1'); showShell(); } else $('pwErr').textContent = 'Wrong password — try again.'; }
 function logout(){ sessionStorage.removeItem('tst_admin'); location.reload(); }
 function showShell(){ $('login').style.display = 'none'; $('shell').style.display = 'grid'; fillSettings(); renderDash(); renderProducts(); renderOrders(); }
